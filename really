@@ -1,0 +1,213 @@
+Script started on Sun Apr 30 21:49:56 2017
+]7;file://Vanessas-MBP/Users/vanessaklotzman/Desktop/Project6[oh-my-zsh] Random theme '/Users/vanessaklotzman/.oh-my-zsh/themes/jtriley.zsh-theme' loaded...
+[1m[7m%[27m[1m[0m                                                                                ]2;vanessaklotzman@Vanessas-MBP]1;..ktop/Project6]7;file://Vanessas-MBP/Users/vanessaklotzman/Desktop/Project6[0m[27m[24m[J[01;36m21:49[01;32m [01;37mvanessaklotzman[35m@[01;37mVanessas-MBP [01;32m/Users/vanessaklotzman/Desktop/Project6
+[01;33m% [00m[K[?1h=[?2004hggc c  c project6  6.c[?1l>[?2004l
+]2;gcc projec6.c]1;gcc[1m[7m%[27m[1m[0m                                                                                ]2;vanessaklotzman@Vanessas-MBP]1;..ktop/Project6]7;file://Vanessas-MBP/Users/vanessaklotzman/Desktop/Project6[0m[27m[24m[J[01;36m21:50[01;32m [01;37mvanessaklotzman[35m@[01;37mVanessas-MBP [01;32m/Users/vanessaklotzman/Desktop/Project6
+[01;33m% [00m[K[?1h=[?2004hccac  ccat projec6.c[?1l>[?2004l
+]2;cat projec6.c]1;cat#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <ctype.h>
+
+int fork (void);
+int pipe (int pd[2]);
+
+int  main (int argc, char *argv[] ) {
+	int lines = 0;
+	int words = 0;
+	int chars = 0;
+	int blanks = 0;
+	int lineSum = 0;
+	int wordSum = 0;
+	int charSum = 0;
+	int options = 0;
+	char c;
+	int printLine = 0;
+	int printChar = 0;
+	int printWord = 0;
+	int argNum = 0;
+	int wordSwitch = 0;
+	int pd[2];
+	FILE *file;
+	int i;
+
+	
+
+	if( (pipe(pd) == -1) ) {
+		fprintf(stderr, "pipe failure\n");
+		exit(1);
+	}
+
+	for( int z = 1; z < argc; z++ ) {
+
+  		
+
+		if( strcmp(argv[z], "-l") == 0 ) 
+			printLine = 1;
+		
+			
+
+		else if( strcmp(argv[z], "-m") == 0 )
+			printChar = 1;
+		else if( strcmp(argv[z], "-w") == 0 )
+			printWord = 1;
+		else
+			break;
+	}
+	for(  i = options + 1; i < argc; i++ ) {
+		file = fopen(argv[i], "r");
+         
+		if ( file == 0 ) {
+			printf("Unable to open file\n",stderr);
+			break;
+		}
+		else {
+			argNum = i;
+			
+
+			if ( fork() == 0 ) {
+				lines = 0;
+				chars = 0;
+				words = 0;
+
+				close(pd[0]);
+
+			
+			while( (c = fgetc(file)) != EOF  ){
+					chars++;
+					
+				if ( isalpha(c) || isdigit(c) || ispunct(c))
+					wordSwitch = 1;
+				if ( isspace(c) && wordSwitch ) {
+					words++;
+					wordSwitch = 0;
+				}
+				if ( c == '\n')
+					lines++;
+			}
+			fclose(file);
+			if( printLine == 1 && printChar == 1 && printWord == 1 )
+				printf("%5d %5d %5d %s\n", words, lines,chars,argv[i]);
+			else if( printLine == 1 && printChar == 0 && printWord == 1 )
+				printf("%5d %5d %s\n", lines, words,argv[i]);
+			else if( printLine == 1  && printChar == 0 && printWord == 0 )
+				printf("%5d %s\n", lines,argv[i]);
+			else if( printLine == 0 && printChar == 1 && printWord == 0 )
+				printf("%5d %s\n", chars,argv[i]);
+			else if( printLine == 0 && printChar == 0 && printWord == 1 )
+				printf("%5d %s\n", words,argv[i]);
+			else if( printLine == 1 && printChar == 0 && printWord == 1 )
+				printf("%5d %5d %s\n ", lines, words,argv[i]);
+			else if( printLine == 0 && printChar == 1 && printWord == 1 )
+				printf("%5d %5d %s\n", words, chars,argv[i]);
+			else if( printLine == 1 && printChar == 1 && printWord == 0)
+               
+              printf("The output is");
+			  printf("Lines:%d Words:%d Chars:%d %s PID %d",lines,words,chars,argv[i],getpid());
+			
+			
+
+			 
+
+                         printf("\n");
+			if( (write(pd[1], &lines, sizeof(int)) == -1) ||
+				(write(pd[1], &words, sizeof(int)) == -1) ||
+					(write(pd[1], &chars, sizeof(int)) == -1) )
+						printf("write to pipe failed\n");
+			return 1;
+			}
+		}
+	}
+
+	for( int x = options + 1; x < argc; x++ ) {
+			close(pd[1]);
+			if( (read(pd[0], &lines, sizeof(int)) == -1) ||
+				(read(pd[0], &words, sizeof(int)) == -1) ||
+					(read(pd[0], &chars, sizeof(int)) == -1) ) 
+						printf("reading from pipe failed\n");
+			else {
+				lineSum += lines;
+				wordSum += words;
+				charSum += chars;
+				
+
+
+			}
+			
+	}
+
+
+	 if( printLine == 1 && printChar == 1 && printWord == 1 )
+    	printf("hi");
+
+        else if( printLine == 1 && printChar == 0 && printWord == 1 )
+                  printf("%5d %5d", lineSum, wordSum);
+        else if( printLine == 1  && printChar == 0 && printWord == 0)
+                  printf("%5d", lineSum);
+       	else if( printLine == 0 && printChar == 1 && printWord == 0 )
+                  printf("%5d", charSum);
+        else if( printLine == 0 && printChar == 0 && printWord == 1 )
+                  printf("%5d", wordSum);
+       	else if( printLine == 1 && printChar == 0 && printWord == 1 )
+                  printf("%5d %5d", lineSum, wordSum);
+       	else if( printLine == 0 && printChar == 1 && printWord == 1 )
+                  printf("%5d %5d", wordSum, charSum);
+	else if( printLine == 1 && printChar == 1 && printWord == 0 )
+		 
+	   printf(" child id: %d\n", getpid());
+	//getting the total sum of the words in the file
+
+printf("%7d%8d%9d total",lineSum,wordSum,charSum);
+}
+[1m[7m%[27m[1m[0m                                                                                ]2;vanessaklotzman@Vanessas-MBP]1;..ktop/Project6]7;file://Vanessas-MBP/Users/vanessaklotzman/Desktop/Project6[0m[27m[24m[J[01;36m21:50[01;32m [01;37mvanessaklotzman[35m@[01;37mVanessas-MBP [01;32m/Users/vanessaklotzman/Desktop/Project6
+[01;33m% [00m[K[?1h=[?2004hccat hello.txt[?1l>[?2004l
+]2;cat hello.txt]1;cathi
+hi
+hi
+hi
+[1m[7m%[27m[1m[0m                                                                                ]2;vanessaklotzman@Vanessas-MBP]1;..ktop/Project6]7;file://Vanessas-MBP/Users/vanessaklotzman/Desktop/Project6[0m[27m[24m[J[01;36m21:50[01;32m [01;37mvanessaklotzman[35m@[01;37mVanessas-MBP [01;32m/Users/vanessaklotzman/Desktop/Project6
+[01;33m% [00m[K[?1h=[?2004h../a.,o  out hello.txt README.md[?1l>[?2004l
+]2;./a.out hello.txt README.md]1;./a.outLines:4 Words:4 Chars:12 hello.txt PID 606
+Lines:1 Words:2 Chars:11 README.md PID 607
+      5       6       23 total[1m[7m%[27m[1m[0m                                                                                ]2;vanessaklotzman@Vanessas-MBP]1;..ktop/Project6]7;file://Vanessas-MBP/Users/vanessaklotzman/Desktop/Project6[0m[27m[24m[J[01;36m21:50[01;32m [01;37mvanessaklotzman[35m@[01;37mVanessas-MBP [01;32m/Users/vanessaklotzman/Desktop/Project6
+[01;33m% [00m[K[?1h=[?2004hwwc hh ello.txt [?1l>[?2004l
+]2;wc hello.txt]1;wc       4       4      12 hello.txt
+[1m[7m%[27m[1m[0m                                                                                ]2;vanessaklotzman@Vanessas-MBP]1;..ktop/Project6]7;file://Vanessas-MBP/Users/vanessaklotzman/Desktop/Project6[0m[27m[24m[J[01;36m21:50[01;32m [01;37mvanessaklotzman[35m@[01;37mVanessas-MBP [01;32m/Users/vanessaklotzman/Desktop/Project6
+[01;33m% [00m[K[?1h=[?2004hwwc README.md[?1l>[?2004l
+]2;wc README.md]1;wc       1       2      11 README.md
+[1m[7m%[27m[1m[0m                                                                                ]2;vanessaklotzman@Vanessas-MBP]1;..ktop/Project6]7;file://Vanessas-MBP/Users/vanessaklotzman/Desktop/Project6[0m[27m[24m[J[01;36m21:51[01;32m [01;37mvanessaklotzman[35m@[01;37mVanessas-MBP [01;32m/Users/vanessaklotzman/Desktop/Project6
+[01;33m% [00m[K[?1h=[?2004hwwc hello.txt README.md[?1l>[?2004l
+]2;wc hello.txt README.md]1;wc       4       4      12 hello.txt
+       1       2      11 README.md
+       5       6      23 total
+[1m[7m%[27m[1m[0m                                                                                ]2;vanessaklotzman@Vanessas-MBP]1;..ktop/Project6]7;file://Vanessas-MBP/Users/vanessaklotzman/Desktop/Project6[0m[27m[24m[J[01;36m21:51[01;32m [01;37mvanessaklotzman[35m@[01;37mVanessas-MBP [01;32m/Users/vanessaklotzman/Desktop/Project6
+[01;33m% [00m[K[?1h=[?2004hccat > none.txt[?1l>[?2004l
+]2;cat > none.txt]1;cat^D[1m[7m%[27m[1m[0m                                                                                ]2;vanessaklotzman@Vanessas-MBP]1;..ktop/Project6]7;file://Vanessas-MBP/Users/vanessaklotzman/Desktop/Project6[0m[27m[24m[J[01;36m21:51[01;32m [01;37mvanessaklotzman[35m@[01;37mVanessas-MBP [01;32m/Users/vanessaklotzman/Desktop/Project6
+[01;33m% [00m[K[?1h=[?2004h../a.out none.txt README.md[?1l>[?2004l
+]2;./a.out none.txt README.md]1;./a.outLines:0 Words:0 Chars:0 none.txt PID 635
+Lines:1 Words:2 Chars:11 README.md PID 636
+      1       2       11 total[1m[7m%[27m[1m[0m                                                                                ]2;vanessaklotzman@Vanessas-MBP]1;..ktop/Project6]7;file://Vanessas-MBP/Users/vanessaklotzman/Desktop/Project6[0m[27m[24m[J[01;36m21:51[01;32m [01;37mvanessaklotzman[35m@[01;37mVanessas-MBP [01;32m/Users/vanessaklotzman/Desktop/Project6
+[01;33m% [00m[K[?1h=[?2004he wwc none.txt README.md[?1l>[?2004l
+]2;wc none.txt README.md]1;wc       0       0       0 none.txt
+       1       2      11 README.md
+       1       2      11 total
+[1m[7m%[27m[1m[0m                                                                                ]2;vanessaklotzman@Vanessas-MBP]1;..ktop/Project6]7;file://Vanessas-MBP/Users/vanessaklotzman/Desktop/Project6[0m[27m[24m[J[01;36m21:51[01;32m [01;37mvanessaklotzman[35m@[01;37mVanessas-MBP [01;32m/Users/vanessaklotzman/Desktop/Project6
+[01;33m% [00m[K[?1h=[?2004hccat > one.txt[?1l>[?2004l
+]2;cat > one.txt]1;catone^D^[[C    
+^D[1m[7m%[27m[1m[0m                                                                                ]2;vanessaklotzman@Vanessas-MBP]1;..ktop/Project6]7;file://Vanessas-MBP/Users/vanessaklotzman/Desktop/Project6[0m[27m[24m[J[01;36m21:52[01;32m [01;37mvanessaklotzman[35m@[01;37mVanessas-MBP [01;32m/Users/vanessaklotzman/Desktop/Project6
+[01;33m% [00m[K[?1h=[?2004h../a,o  .ouy  y t one.txt[?1l>[?2004l
+]2;./a.out one.txt]1;./a.outLines:1 Words:1 Chars:4 one.txt PID 652
+      1       1        4 total[1m[7m%[27m[1m[0m                                                                                ]2;vanessaklotzman@Vanessas-MBP]1;..ktop/Project6]7;file://Vanessas-MBP/Users/vanessaklotzman/Desktop/Project6[0m[27m[24m[J[01;36m21:52[01;32m [01;37mvanessaklotzman[35m@[01;37mVanessas-MBP [01;32m/Users/vanessaklotzman/Desktop/Project6
+[01;33m% [00m[K[?1h=[?2004hwwc one.txt[?1l>[?2004l
+]2;wc one.txt]1;wc       1       1       4 one.txt
+[1m[7m%[27m[1m[0m                                                                                ]2;vanessaklotzman@Vanessas-MBP]1;..ktop/Project6]7;file://Vanessas-MBP/Users/vanessaklotzman/Desktop/Project6[0m[27m[24m[J[01;36m21:52[01;32m [01;37mvanessaklotzman[35m@[01;37mVanessas-MBP [01;32m/Users/vanessaklotzman/Desktop/Project6
+[01;33m% [00m[K[?1h=[?2004h../a .  ../a.out proje6.c   c6.c[?1l>[?2004l
+]2;./a.out projec6.c]1;./a.outLines:156 Words:604 Chars:3931 projec6.c PID 672
+    156     604     3931 total[1m[7m%[27m[1m[0m                                                                                ]2;vanessaklotzman@Vanessas-MBP]1;..ktop/Project6]7;file://Vanessas-MBP/Users/vanessaklotzman/Desktop/Project6[0m[27m[24m[J[01;36m21:53[01;32m [01;37mvanessaklotzman[35m@[01;37mVanessas-MBP [01;32m/Users/vanessaklotzman/Desktop/Project6
+[01;33m% [00m[K[?1h=[?2004hwwc proje6.  c6.c[?1l>[?2004l
+]2;wc projec6.c]1;wc     156     604    3931 projec6.c
+[1m[7m%[27m[1m[0m                                                                                ]2;vanessaklotzman@Vanessas-MBP]1;..ktop/Project6]7;file://Vanessas-MBP/Users/vanessaklotzman/Desktop/Project6[0m[27m[24m[J[01;36m21:53[01;32m [01;37mvanessaklotzman[35m@[01;37mVanessas-MBP [01;32m/Users/vanessaklotzman/Desktop/Project6
+[01;33m% [00m[K[?1h=[?2004heexit[?1l>[?2004l
+]2;exit]1;exit
+Script done on Sun Apr 30 21:53:51 2017
